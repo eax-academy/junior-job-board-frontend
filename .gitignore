@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Local environment variables
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+*.dockerignore
+*.log
+docker-compose.override.yml
+
+# OS files
+.DS_Store
