@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://172.20.10.2:8080").replace(
+    /\/$/,
+    "",
+);
+
 const initialFormState = {
     email: "",
     password: "",
@@ -37,7 +42,7 @@ function Login() {
         return validationErrors;
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const validationErrors = validate();
         setErrors(validationErrors);
@@ -46,11 +51,52 @@ function Login() {
             return;
         }
 
-        setStatus({
-            type: "success",
-            message: "Logged in! Redirecting...",
-        });
-        setTimeout(() => navigate("/"), 1000);
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password,
+                }),
+            });
+
+            if (response.status === 400) {
+                setStatus({
+                    type: "error",
+                    message: "Account does not exist or credentials are wrong.",
+                });
+                return;
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.token) {
+                    localStorage.setItem("authToken", data.token);
+                }
+                if (data.role) {
+                    localStorage.setItem("authRole", data.role);
+                }
+                setStatus({
+                    type: "success",
+                    message: "Logged in! Redirecting...",
+                });
+                setFormData(initialFormState);
+                setTimeout(() => navigate("/"), 1000);
+            } else {
+                setStatus({
+                    type: "error",
+                    message: "Unable to login. Please try again.",
+                });
+            }
+        } catch (error) {
+            setStatus({
+                type: "error",
+                message: error.message || "Network error. Please try again.",
+            });
+        }
     };
 
     return (

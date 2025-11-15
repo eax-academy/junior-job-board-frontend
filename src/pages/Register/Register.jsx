@@ -7,7 +7,7 @@ const accountTypes = [
     { key: "user", label: "User", description: "To find a job fast." },
 ];
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:18080").replace(
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://172.20.10.2:8080").replace(
     /\/$/,
     "",
 );
