@@ -35,8 +35,8 @@ export default function JobCard({ job }) {
             <p className="jobcard__description">{job.description}</p>
 
             <div className="jobcard__skills">
-                {job.skills.map((skill) => (
-                    <span key={skill} className="jobcard__skill-item">
+                {job.skills.map((skill,idx) => (
+                    <span key={`${job.id}-skill-${idx}`} className="jobcard__skill-item">
                         {skill}
                     </span>
                 ))}
