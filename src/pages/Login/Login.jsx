@@ -55,7 +55,7 @@ function Login() {
             const data = response.data;
 
             if (data.token) {
-                localStorage.setItem("authToken", data.token);
+                localStorage.setItem("token", data.token);
             }
             if (data.role) {
                 localStorage.setItem("authRole", data.role);
