@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
-
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://172.20.10.2:8080").replace(
-    /\/$/,
-    "",
-);
+import api from "../../axiosConfig";
 
 const initialFormState = {
     email: "",
@@ -32,7 +28,8 @@ function Login() {
         if (!formData.email.trim()) {
             validationErrors.email = "Email is required.";
         } else if (!emailPattern.test(formData.email)) {
-            validationErrors.email = "Enter a valid email (example: hello@domain.com).";
+            validationErrors.email =
+                "Enter a valid email (example: hello@domain.com).";
         }
 
         if (!formData.password) {
@@ -47,54 +44,37 @@ function Login() {
         const validationErrors = validate();
         setErrors(validationErrors);
 
-        if (Object.keys(validationErrors).length > 0) {
-            return;
-        }
+        if (Object.keys(validationErrors).length > 0) return;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: formData.email,
-                    password: formData.password,
-                }),
+            const response = await api.post("/auth/login", {
+                email: formData.email,
+                password: formData.password,
             });
 
-            if (response.status === 400) {
-                setStatus({
-                    type: "error",
-                    message: "Account does not exist or credentials are wrong.",
-                });
-                return;
+            const data = response.data;
+
+            if (data.token) {
+                localStorage.setItem("authToken", data.token);
+            }
+            if (data.role) {
+                localStorage.setItem("authRole", data.role);
             }
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.token) {
-                    localStorage.setItem("authToken", data.token);
-                }
-                if (data.role) {
-                    localStorage.setItem("authRole", data.role);
-                }
-                setStatus({
-                    type: "success",
-                    message: "Logged in! Redirecting...",
-                });
-                setFormData(initialFormState);
-                setTimeout(() => navigate("/"), 1000);
-            } else {
-                setStatus({
-                    type: "error",
-                    message: "Unable to login. Please try again.",
-                });
-            }
+            setStatus({
+                type: "success",
+                message: "Logged in! Redirecting...",
+            });
+
+            setFormData(initialFormState);
+            setTimeout(() => navigate("/"), 1000);
         } catch (error) {
+            const msg =
+                error.response?.data?.message || "Wrong email or password.";
+
             setStatus({
                 type: "error",
-                message: error.message || "Network error. Please try again.",
+                message: msg,
             });
         }
     };
@@ -102,13 +82,22 @@ function Login() {
     return (
         <section className="login">
             <div className="login__content">
-                <form className="login__form" onSubmit={handleSubmit} noValidate>
+                <form
+                    className="login__form"
+                    onSubmit={handleSubmit}
+                    noValidate
+                >
                     <h1>Log in</h1>
                     <p className="login__intro">
-                        Welcome back! Enter your details to access your dashboard.
+                        Welcome back! Enter your details to access your
+                        dashboard.
                     </p>
 
-                    <label className={`login__field ${errors.email ? "has-error" : ""}`}>
+                    <label
+                        className={`login__field ${
+                            errors.email ? "has-error" : ""
+                        }`}
+                    >
                         <span>Email</span>
                         <input
                             type="email"
@@ -118,10 +107,16 @@ function Login() {
                             onChange={handleChange}
                             autoComplete="email"
                         />
-                        {errors.email && <p className="login__error">{errors.email}</p>}
+                        {errors.email && (
+                            <p className="login__error">{errors.email}</p>
+                        )}
                     </label>
 
-                    <label className={`login__field ${errors.password ? "has-error" : ""}`}>
+                    <label
+                        className={`login__field ${
+                            errors.password ? "has-error" : ""
+                        }`}
+                    >
                         <span>Password</span>
                         <input
                             type="password"
@@ -131,7 +126,9 @@ function Login() {
                             onChange={handleChange}
                             autoComplete="current-password"
                         />
-                        {errors.password && <p className="login__error">{errors.password}</p>}
+                        {errors.password && (
+                            <p className="login__error">{errors.password}</p>
+                        )}
                     </label>
 
                     <button type="submit" className="login__submit">
@@ -139,11 +136,14 @@ function Login() {
                     </button>
 
                     <p className="login__signup">
-                        Don’t have an account? <Link to="/register">Sign up</Link>
+                        Don’t have an account?{" "}
+                        <Link to="/register">Sign up</Link>
                     </p>
 
                     {status && (
-                        <div className={`login__status login__status--${status.type}`}>
+                        <div
+                            className={`login__status login__status--${status.type}`}
+                        >
                             {status.message}
                         </div>
                     )}

@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../../axiosConfig";
+
 import "./Register.css";
 
 const accountTypes = [
-    { key: "company", label: "Company", description: "Post jobs and track applicants." },
+    {
+        key: "company",
+        label: "Company",
+        description: "Post jobs and track applicants.",
+    },
     { key: "user", label: "User", description: "To find a job fast." },
 ];
-
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://172.20.10.2:8080").replace(
-    /\/$/,
-    "",
-);
 
 const initialFormState = {
     email: "",
@@ -51,7 +52,8 @@ function Register() {
         if (!formData.email.trim()) {
             validationErrors.email = "Email is required.";
         } else if (!emailPattern.test(formData.email)) {
-            validationErrors.email = "Enter a valid email (example: hello@domain.com).";
+            validationErrors.email =
+                "Enter a valid email (example: hello@domain.com).";
         }
 
         if (!formData.password) {
@@ -76,59 +78,56 @@ function Register() {
         const validationErrors = validate();
         setErrors(validationErrors);
 
-        if (Object.keys(validationErrors).length > 0) {
-            return;
-        }
+        if (Object.keys(validationErrors).length > 0) return;
 
-        const endpoint = `${API_BASE_URL}/auth/register/${
+        const endpoint = `/auth/register/${
             activeTab === "company" ? "company" : "user"
         }`;
 
         try {
-            const response = await fetch(endpoint, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: formData.email,
-                    password: formData.password,
-                }),
+            const response = await api.post(endpoint, {
+                email: formData.email,
+                password: formData.password,
             });
 
-            if (response.ok) {
-                setStatus({
-                    type: "success",
-                    message: "Registration successful!",
-                });
-                setFormData(initialFormState);
-                setTimeout(() => navigate("/login"), 1000);
-            } else {
-                setStatus({
-                    type: "error",
-                    message: "Account already exists",
-                });
-            }
+            setStatus({
+                type: "success",
+                message: "Registration successful!",
+            });
+
+            setFormData(initialFormState);
+            setTimeout(() => navigate("/login"), 1000);
         } catch (error) {
+            const msg =
+                error.response?.data?.message ||
+                "Account already exists or request failed.";
+
             setStatus({
                 type: "error",
-                message: error.message || "Network error. Please try again.",
+                message: msg,
             });
         }
     };
+
     // handleSubmit: prevents default submit, validates, and displays feedback.
 
     return (
         <section className="register">
             <div className="register__content">
-                <div className="register__tabs" role="tablist" aria-label="Account type">
+                <div
+                    className="register__tabs"
+                    role="tablist"
+                    aria-label="Account type"
+                >
                     {accountTypes.map((type) => (
                         <button
                             key={type.key}
                             role="tab"
                             type="button"
                             aria-selected={activeTab === type.key}
-                            className={`register__tab ${activeTab === type.key ? "is-active" : ""}`}
+                            className={`register__tab ${
+                                activeTab === type.key ? "is-active" : ""
+                            }`}
                             onClick={() => handleTabChange(type.key)}
                         >
                             <span>{type.label}</span>
@@ -137,7 +136,11 @@ function Register() {
                     ))}
                 </div>
 
-                <form className="register__form" onSubmit={handleSubmit} noValidate>
+                <form
+                    className="register__form"
+                    onSubmit={handleSubmit}
+                    noValidate
+                >
                     <h1>Create account</h1>
                     <p className="register__intro">
                         {activeTab === "company"
@@ -145,7 +148,11 @@ function Register() {
                             : "Showcase your projects and get noticed faster."}
                     </p>
 
-                    <label className={`register__field ${errors.email ? "has-error" : ""}`}>
+                    <label
+                        className={`register__field ${
+                            errors.email ? "has-error" : ""
+                        }`}
+                    >
                         <span>Email</span>
                         <input
                             type="email"
@@ -155,10 +162,16 @@ function Register() {
                             onChange={handleChange}
                             autoComplete="email"
                         />
-                        {errors.email && <p className="register__error">{errors.email}</p>}
+                        {errors.email && (
+                            <p className="register__error">{errors.email}</p>
+                        )}
                     </label>
 
-                    <label className={`register__field ${errors.password ? "has-error" : ""}`}>
+                    <label
+                        className={`register__field ${
+                            errors.password ? "has-error" : ""
+                        }`}
+                    >
                         <span>Password</span>
                         <input
                             type="password"
@@ -169,12 +182,19 @@ function Register() {
                             autoComplete="new-password"
                         />
                         <p className="register__hint">
-                            Password must include an uppercase letter, a number, and a special character.
+                            Password must include an uppercase letter, a number,
+                            and a special character.
                         </p>
-                        {errors.password && <p className="register__error">{errors.password}</p>}
+                        {errors.password && (
+                            <p className="register__error">{errors.password}</p>
+                        )}
                     </label>
 
-                    <label className={`register__field ${errors.confirmPassword ? "has-error" : ""}`}>
+                    <label
+                        className={`register__field ${
+                            errors.confirmPassword ? "has-error" : ""
+                        }`}
+                    >
                         <span>Confirm Password</span>
                         <input
                             type="password"
@@ -185,7 +205,9 @@ function Register() {
                             autoComplete="new-password"
                         />
                         {errors.confirmPassword && (
-                            <p className="register__error">{errors.confirmPassword}</p>
+                            <p className="register__error">
+                                {errors.confirmPassword}
+                            </p>
                         )}
                     </label>
 
@@ -198,7 +220,9 @@ function Register() {
                     </p>
 
                     {status && (
-                        <div className={`register__status register__status--${status.type}`}>
+                        <div
+                            className={`register__status register__status--${status.type}`}
+                        >
                             {status.message}
                         </div>
                     )}
