@@ -59,7 +59,7 @@ function Login() {
                 localStorage.setItem("token", data.token);
             }
             if (data.role) {
-                localStorage.setItem("Role", data.role);
+                localStorage.setItem("Role", JSON.stringify(data.role));
             }
             if (data[data.role]) {
                 localStorage.setItem("Data", JSON.stringify(data[data.role]));
