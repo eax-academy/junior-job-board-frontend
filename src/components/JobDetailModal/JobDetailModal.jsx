@@ -2,6 +2,11 @@ import React from "react";
 import "./JobDetailModal.css";
 
 export default function JobDetailModal({ job, onClose }) {
+    const workType = Array.isArray(job.workType) ? job.workType : [];
+    const skills = Array.isArray(job.skills) ? job.skills : [];
+    const salaryMin = job.salaryRange?.min ?? "";
+    const salaryMax = job.salaryRange?.max ?? "";
+
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -16,18 +21,17 @@ export default function JobDetailModal({ job, onClose }) {
                     <strong>Grade:</strong> {job.grade}
                 </p>
                 <p>
-                    <strong>Type:</strong> {job.workType.join(", ")}
+                    <strong>Type:</strong> {workType.join(", ")}
                 </p>
                 <p>
-                    <strong>Salary:</strong> {job.salaryRange.min} –{" "}
-                    {job.salaryRange.max}
+                    <strong>Salary:</strong> {salaryMin} – {salaryMax}
                 </p>
 
                 <p className="modal-description">{job.description}</p>
 
                 <div className="modal-skills">
-                    {job.skills.map((skill) => (
-                        <span key={skill} className="modal-skill">
+                    {skills.map((skill, idx) => (
+                        <span key={`${job.id}-skill-${idx}`} className="modal-skill">
                             {skill}
                         </span>
                     ))}
