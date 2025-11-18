@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
+import Logo from "../../assets/images/Logo.svg";
 import api from "../../axiosConfig";
 
 const initialFormState = {
@@ -83,6 +84,10 @@ function Login() {
 
     return (
         <section className="login">
+            <div className="login__logo">
+                <img src={Logo} alt="Logo" onClick={() => navigate("/")} />
+            </div>
+
             <div className="login__content">
                 <form
                     className="login__form"

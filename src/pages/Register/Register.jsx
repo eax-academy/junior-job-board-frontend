@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Logo from "../../assets/images/Logo.svg";
 import api from "../../axiosConfig";
 
 import "./Register.css";
@@ -113,6 +114,9 @@ function Register() {
 
     return (
         <section className="register">
+            <div className="register__logo">
+                <img src={Logo} alt="Logo" onClick={() => navigate("/")} />
+            </div>
             <div className="register__content">
                 <div
                     className="register__tabs"
