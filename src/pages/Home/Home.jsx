@@ -40,7 +40,7 @@ export default function Home() {
         } = filterObj;
 
         let params = [];
-        if (language) params.push(`language=${language.toLowerCase()}`);
+        if (language) params.push(`language=${language}`);
         if (seniority.length) params.push(`grade=${seniority.join(",")}`);
         if (category) params.push(`category=${category}`);
         if (skills.length) params.push(`skills=${skills.join(",")}`);
