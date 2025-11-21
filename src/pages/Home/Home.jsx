@@ -1,4 +1,4 @@
-`import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import JobCard from "../../components/JobCard/JobCard";
