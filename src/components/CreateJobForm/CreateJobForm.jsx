@@ -90,6 +90,7 @@ export default function PostJobForm({ onClose, onJobPosted }) {
             setError("Failed to post job. Try again.");
         } finally {
             setLoading(false);
+            window.location.reload();
         }
     };
 
