@@ -29,11 +29,7 @@ export default function Home() {
 
     const [appliedFilters, setAppliedFilters] = useState({});
 
-    // ==========================
-    // BUILD URL FOR API REQUEST
-    // ==========================
     const buildJobsUrl = (filterObj = {}, search = "") => {
-        console.log("Role", role, typeof role);
         const {
             language = "",
             seniority = [],
@@ -58,9 +54,6 @@ export default function Home() {
         return `/jobs?${params.join("&")}`;
     };
 
-    // ==========================
-    // FETCH JOBS
-    // ==========================
     const fetchJobs = async (filterObj = {}, search = "") => {
         try {
             const url = buildJobsUrl(filterObj, search);
@@ -74,9 +67,9 @@ export default function Home() {
                     job.requiredLanguages = Array.isArray(job.requiredLanguages)
                         ? job.requiredLanguages
                         : [];
-                    job.createdAt = new Date(
-                        job.createdAt
-                    ).toLocaleDateString();
+                    job.createdAt = job.createdAt
+                        ? new Date(job.createdAt).toLocaleDateString()
+                        : "";
                     return job;
                 });
                 setJobList(data);
@@ -86,9 +79,6 @@ export default function Home() {
         }
     };
 
-    // ==========================
-    // INITIAL LOAD
-    // ==========================
     useEffect(() => {
         fetchJobs();
         const storedRole = localStorage.getItem("Role");
@@ -102,18 +92,12 @@ export default function Home() {
         }
     }, []);
 
-    // ==========================
-    // SEARCH
-    // ==========================
     useEffect(() => {
         if (searchTerm.trim() !== "") {
             fetchJobs(appliedFilters, searchTerm);
         }
     }, [searchTerm]);
 
-    // ==========================
-    // HANDLER FUNCTIONS
-    // ==========================
     const handleSectionChange = (section) => setActiveSection(section);
     const handleSearchChange = (term) => setSearchTerm(term);
 
@@ -131,9 +115,6 @@ export default function Home() {
         window.location.reload();
     };
 
-    // ==========================
-    // RENDER
-    // ==========================
     return (
         <div className="home">
             <Navbar
@@ -152,6 +133,7 @@ export default function Home() {
                         >
                             Post Job
                         </button>
+
                         <button
                             className={`home__post-job-btn ${
                                 showMyJobs ? "is-active" : ""
@@ -159,6 +141,24 @@ export default function Home() {
                             onClick={() => setShowMyJobs((prev) => !prev)}
                         >
                             {showMyJobs ? "All Jobs" : "My Jobs"}
+                        </button>
+                    </>
+                )}
+
+                {role === "admin" && (
+                    <>
+                        <button
+                            className="home__post-job-btn home__admin-btn"
+                            onClick={() => (window.location.href = "/admin")}
+                        >
+                            Admin Panel
+                        </button>
+
+                        <button
+                            className="home__post-job-btn"
+                            onClick={() => setShowPostJobForm(true)}
+                        >
+                            Post Job
                         </button>
                     </>
                 )}
@@ -186,12 +186,11 @@ export default function Home() {
                             <div className="job-listings">
                                 {jobList?.length ? (
                                     jobList.map((job, i) => (
-                                        <div
-                                            key={i}
-                                            onClick={() => handleOpenModal(job)}
-                                        >
-                                            <JobCard job={job} />
-                                        </div>
+                                        <JobCard
+                                            key={job._id || i}
+                                            job={job}
+                                            onClick={handleOpenModal}
+                                        />
                                     ))
                                 ) : (
                                     <div>No jobs found.</div>
@@ -201,7 +200,7 @@ export default function Home() {
                     )}
                 </div>
             </div>
-            {/* modal window */}
+
             {selectedJob && (
                 <JobDetailModal job={selectedJob} onClose={handleCloseModal} />
             )}
@@ -224,9 +223,11 @@ export default function Home() {
                                 )
                                     ? newJob.requiredLanguages
                                     : [],
-                                createdAt: new Date(
-                                    newJob.createdAt
-                                ).toLocaleDateString(),
+                                createdAt: newJob.createdAt
+                                    ? new Date(
+                                          newJob.createdAt
+                                      ).toLocaleDateString()
+                                    : "",
                             },
                             ...jobList,
                         ])

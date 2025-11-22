@@ -1,188 +1,102 @@
 .jobcard {
-    width: 100%;
-    max-width: 364px;
-    max-width: 440px;
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-sizing: border-box;
-}
-
-/* Header */
-.jobcard__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.jobcard__header__left {
-    display: flex;
-}
-.jobcard__logo img {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-}
-
-.jobcard__info {
-    display: flex;
-    flex-direction: column;
-    margin-left: 16px;
-    max-width: 165px;
-}
-
-.jobcard__title {
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    font-size: 15px;
-}
-
-.jobcard__more {
-    width: 22px;
-    height: 5px;
-    cursor: pointer;
-}
-
-.jobcard__location {
-    font-family: "Poppins", sans-serif;
-    font-weight: 400;
-    font-size: 10px;
-    margin-top: 4px;
-    color: #0062ff;
-}
-
-.jobcard__menu {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 22px;
-    padding: 4px;
-    color: #666;
-}
-
-/* Middle info */
-.jobcard__details {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-    font-size: 12px;
-    color: #151515;
-    font-family: "Open Sans", sans-serif;
-    font-weight: 600;
-    font-style: normal;
-}
-
-.jobcard__grade,
-.jobcard__worktype,
-.jobcard__salary {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-/* Description */
-.jobcard__description {
-    font-family: "Open Sans", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 14px;
-    line-height: 1.5rem;
-    color: #555;
-    margin-top: 4px;
-}
-
-/* Skills */
-.jobcard__skills {
-    display: flex;
-    font-family: "Open Sans", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.jobcard__skill-item {
-    padding: 7px 17px;
-    background: #f5f5f9;
-    border-radius: 10px;
-    font-size: 13px;
-    color: #bababa;
-    font-weight: 500;
-}
-
-/* Bottom footer */
-.jobcard__footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 12px;
-}
-
-.jobcard__actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.jobcard__actions > * {
-    flex-shrink: 0;
-}
-
-.jobcard__date {
-    font-family: "Open Sans", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 13px;
-    color: #bababa;
-}
-
-.jobcard__save {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: 0.2s;
-}
-
-.jobcard__save:hover {
-    opacity: 1;
+  background: #fff;
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(17,24,39,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: default;
+  transition: transform .12s ease, box-shadow .12s ease;
 }
 
 .jobcard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(17,24,39,0.08);
 }
 
-.jobcard__save:hover {
-    opacity: 1;
-    transform: scale(1.2);
-    transition: transform 0.2s ease, opacity 0.2s ease;
+.jobcard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.jobcard__skill-item:hover {
-    background: #e0e0eb;
-    color: #555;
-    transition: background 0.2s ease, color 0.2s ease;
+.jobcard__header__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.jobcard__more:hover {
-    opacity: 0.7;
-    transform: scale(1.1);
-    transition: transform 0.2s ease, opacity 0.2s ease;
+.jobcard__logo img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
-.jobcard__category {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #5c6bc0;
-    background: #e8eaf6;
-    padding: 4px 10px;
-    border-radius: 6px;
+.jobcard__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.jobcard__location {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.jobcard__more {
+  width: 20px;
+  height: 20px;
+}
+
+.jobcard__details {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  color: #374151;
+}
+
+.jobcard__description {
+  font-size: 14px;
+  color: #4b5563;
+  margin: 0;
+}
+
+.jobcard__skills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jobcard__skill-item {
+  background: #f3f4f6;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.jobcard__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.jobcard__date {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.jobcard__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.jobcard__save {
+  width: 28px;
+  height: 28px;
 }
