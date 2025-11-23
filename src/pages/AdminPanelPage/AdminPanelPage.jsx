@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import api from "../../axiosConfig";
 import JobCard from "../../components/JobCard/JobCard";
 import "./AdminPanelPage.css";
-import importJobs from "../../data/jobsMock.js";
 
 export default function AdminPanelPage() {
     const navigate = useNavigate();
@@ -11,7 +10,7 @@ export default function AdminPanelPage() {
 
     const fetchJobs = async () => {
         try {
-            const res = await api.get("/pending-jobs");
+            const res = await api.get("/admin/jobs/pending");
             if (res && res.data && res.data.length) {
                 setJobs(res.data);
                 return;
@@ -19,14 +18,11 @@ export default function AdminPanelPage() {
         } catch (e) {
             console.error("Error fetching jobs:", e);
         }
-        if (Array.isArray(importJobs)) {
-            setJobs(importJobs); // Fallback to mock data if API call fails
-        }
     };
 
     const approveJob = async (id) => {
         try {
-            await api.post(`/approve-job/${id}`);
+            await api.patch(`/admin/jobs/${id}/approve`);
         } catch (e) {
             console.error("Error approving job:", e);
         }
@@ -35,7 +31,7 @@ export default function AdminPanelPage() {
 
     const rejectJob = async (id) => {
         try {
-            await api.post(`/reject-job/${id}`);
+            await api.patch(`/admin/jobs/${id}/reject`);
         } catch (e) {
             console.error("Error rejecting job:", e);
         }
@@ -61,14 +57,14 @@ export default function AdminPanelPage() {
             <div className="admin__grid">
                 {jobs.map((job,index) => (
                     <JobCard
-                        key={`${job._id || job.id}-${index}`}
+                        key={`${job._id.$oid || job.id.$oid}-${index}`}
                         job={job}
                         actions={
                             <div className="admin__actions">
                                 <button
                                     className="admin__approve"
                                     onClick={() =>
-                                        approveJob(job._id || job.id)
+                                        approveJob(job._id.$oid|| job.id.$oid)
                                     }
                                 >
                                     Approve
@@ -76,7 +72,7 @@ export default function AdminPanelPage() {
 
                                 <button
                                     className="admin__reject"
-                                    onClick={() => rejectJob(job._id || job.id)}
+                                    onClick={() => rejectJob(job._id.$oid || job.id.$oid)}
                                 >
                                     Reject
                                 </button>
