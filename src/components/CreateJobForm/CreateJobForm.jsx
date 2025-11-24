@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import api from "../../axiosConfig";
 import "./CreateJobForm.css";
 
@@ -21,18 +21,103 @@ const skillsMap = {
     },
 };
 
-export default function PostJobForm({ onClose, onJobPosted }) {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [category, setCategory] = useState("");
-    const [requiredLanguage, setRequiredLanguage] = useState("");
-    const [grade, setGrade] = useState("");
-    const [skills, setSkills] = useState([]);
+const coerceSalaryValue = (value) => {
+    if (value === undefined || value === null) return "";
+    if (typeof value === "object") {
+        if (typeof value.$numberDecimal === "string") {
+            const parsed = Number(value.$numberDecimal);
+            return Number.isNaN(parsed) ? value.$numberDecimal : parsed;
+        }
+        if (typeof value.$numberDouble === "string") {
+            const parsed = Number(value.$numberDouble);
+            return Number.isNaN(parsed) ? value.$numberDouble : parsed;
+        }
+        if (typeof value.$numberInt === "string") {
+            const parsed = Number(value.$numberInt);
+            return Number.isNaN(parsed) ? value.$numberInt : parsed;
+        }
+        if (Array.isArray(value) && value.length) {
+            return coerceSalaryValue(value[0]);
+        }
+        return "";
+    }
+    return value;
+};
+
+const deriveInitialSalary = (job = {}) => {
+    const range = job.salaryRange;
+    const salary = job.salary;
+
+    const pickValue = (...candidates) => {
+        for (const candidate of candidates) {
+            const parsed = coerceSalaryValue(candidate);
+            if (parsed !== "" && parsed !== undefined) {
+                return parsed;
+            }
+        }
+        return "";
+    };
+
+    return {
+        min: pickValue(
+            range?.min,
+            range?.from,
+            Array.isArray(range) ? range[0] : undefined,
+            salary?.min,
+            Array.isArray(salary) ? salary[0] : undefined,
+            job.salaryMin
+        ),
+        max: pickValue(
+            range?.max,
+            range?.to,
+            Array.isArray(range) ? range[1] : undefined,
+            salary?.max,
+            Array.isArray(salary) ? salary[1] : undefined,
+            job.salaryMax
+        ),
+    };
+};
+
+export default function PostJobForm({
+    onClose,
+    onJobPosted,
+    onJobUpdated,
+    initialJob = null,
+}) {
+    const resolvedJobId =
+        initialJob?._id?.$oid ||
+        initialJob?._id ||
+        initialJob?.id?.$oid ||
+        initialJob?.id ||
+        null;
+    const isEditMode = Boolean(resolvedJobId);
+
+    const [title, setTitle] = useState(initialJob?.title || "");
+    const [description, setDescription] = useState(
+        initialJob?.description || ""
+    );
+    const [category, setCategory] = useState(initialJob?.category || "");
+    const [requiredLanguage, setRequiredLanguage] = useState(
+        Array.isArray(initialJob?.requiredLanguages)
+            ? initialJob.requiredLanguages[0] || ""
+            : ""
+    );
+    const [grade, setGrade] = useState(initialJob?.grade || "");
+    const [skills, setSkills] = useState(
+        Array.isArray(initialJob?.skills) ? [...initialJob.skills] : []
+    );
     const [availableSkills, setAvailableSkills] = useState([]);
-    const [salaryMin, setSalaryMin] = useState("");
-    const [salaryMax, setSalaryMax] = useState("");
-    const [location, setLocation] = useState("");
-    const [workType, setWorkType] = useState([]);
+    const initialSalaryRange = deriveInitialSalary(initialJob || {});
+    const [salaryMin, setSalaryMin] = useState(
+        initialSalaryRange.min !== "" ? String(initialSalaryRange.min) : ""
+    );
+    const [salaryMax, setSalaryMax] = useState(
+        initialSalaryRange.max !== "" ? String(initialSalaryRange.max) : ""
+    );
+    const [location, setLocation] = useState(initialJob?.location || "");
+    const [workType, setWorkType] = useState(
+        Array.isArray(initialJob?.workType) ? [...initialJob.workType] : []
+    );
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -40,6 +125,36 @@ export default function PostJobForm({ onClose, onJobPosted }) {
     const languagesOptions = ["JavaScript", "Python", "Java", "C++"];
     const gradeOptions = ["Intern", "Junior", "Middle", "Senior"];
     const workTypeOptions = ["remote", "onsite", "hybrid"];
+
+    useEffect(() => {
+        if (initialJob) {
+            setTitle(initialJob.title || "");
+            setDescription(initialJob.description || "");
+            setCategory(initialJob.category || "");
+            setRequiredLanguage(
+                Array.isArray(initialJob.requiredLanguages)
+                    ? initialJob.requiredLanguages[0] || ""
+                    : ""
+            );
+            setGrade(initialJob.grade || "");
+            setSkills(
+                Array.isArray(initialJob.skills) ? [...initialJob.skills] : []
+            );
+            setLocation(initialJob.location || "");
+            setWorkType(
+                Array.isArray(initialJob.workType)
+                    ? [...initialJob.workType]
+                    : []
+            );
+            const salaryRange = deriveInitialSalary(initialJob);
+            setSalaryMin(
+                salaryRange.min !== "" ? String(salaryRange.min) : ""
+            );
+            setSalaryMax(
+                salaryRange.max !== "" ? String(salaryRange.max) : ""
+            );
+        }
+    }, [initialJob]);
 
     useEffect(() => {
         if (requiredLanguage && category) {
@@ -65,6 +180,16 @@ export default function PostJobForm({ onClose, onJobPosted }) {
         setLoading(true);
         setError("");
         try {
+            const salaryRangePayload = isEditMode
+                ? {
+                      min: salaryMin !== "" ? salaryMin : "",
+                      max: salaryMax !== "" ? salaryMax : "",
+                  }
+                : {
+                      min: salaryMin !== "" ? Number(salaryMin) : null,
+                      max: salaryMax !== "" ? Number(salaryMax) : null,
+                  };
+
             const payload = {
                 title,
                 description,
@@ -72,25 +197,41 @@ export default function PostJobForm({ onClose, onJobPosted }) {
                 grade,
                 skills,
                 category: category || "",
-                salaryRange: {
-                    min: salaryMin !== "" ? Number(salaryMin) : null,
-                    max: salaryMax !== "" ? Number(salaryMax) : null,
-                },
+                salaryRange: salaryRangePayload,
                 location,
                 workType: workType ? [...workType] : [],
+                status: isEditMode ? "pending" : undefined,
             };
 
-            const res = await api.post("/jobs", payload);
-            if (res.status === 201 || res.status === 200) {
-                onJobPosted && onJobPosted(res.data);
+            let res;
+            if (isEditMode && resolvedJobId) {
+                res = await api.put(`/jobs/${resolvedJobId}`, payload);
+                if (res?.data && onJobUpdated) {
+                    onJobUpdated(res.data);
+                }
                 onClose && onClose();
+                if (typeof window !== "undefined") {
+                    window.location.reload();
+                }
+            } else {
+                res = await api.post("/jobs", payload);
+                if (res.status === 201 || res.status === 200) {
+                    onJobPosted && onJobPosted(res.data);
+                    onClose && onClose();
+                }
             }
         } catch (err) {
             console.error(err);
-            setError("Failed to post job. Try again.");
+            setError(
+                isEditMode
+                    ? "Failed to update job. Try again."
+                    : "Failed to post job. Try again."
+            );
         } finally {
             setLoading(false);
-            window.location.reload();
+            if (!isEditMode) {
+                window.location.reload();
+            }
         }
     };
 
@@ -229,7 +370,13 @@ export default function PostJobForm({ onClose, onJobPosted }) {
                     {error && <div className="error">{error}</div>}
                     <div className="form-buttons">
                         <button type="submit" disabled={loading}>
-                            {loading ? "Posting..." : "Post Job"}
+                            {loading
+                                ? isEditMode
+                                    ? "Saving..."
+                                    : "Posting..."
+                                : isEditMode
+                                ? "Save Changes"
+                                : "Post Job"}
                         </button>
                         <button type="button" onClick={onClose}>
                             Cancel
