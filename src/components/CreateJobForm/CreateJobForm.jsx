@@ -200,7 +200,6 @@ export default function PostJobForm({
                 salaryRange: salaryRangePayload,
                 location,
                 workType: workType ? [...workType] : [],
-                status: isEditMode ? "pending" : undefined,
             };
 
             let res;
