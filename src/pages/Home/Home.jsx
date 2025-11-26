@@ -248,7 +248,7 @@ export default function Home() {
                 <div className="home__jobs">
                     {showMyApplications ? (
                         <MyApplications
-                            userId={userData?._id}
+                            userId={userData?._id.$oid}
                             onJobClick={handleOpenModal}
                         />
                     ) : showMyJobs && activeSection === "home" ? (
