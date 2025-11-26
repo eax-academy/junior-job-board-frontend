@@ -7,6 +7,12 @@ export default function JobCard({ job, actions, onClick }) {
         ? new Date(job.createdAt.$date).toLocaleString()
         : job.createdAt || "";
 
+    const statusColors = {
+        pending: "#3498db", 
+        approved: "#2ecc71",  
+        rejected: "#e74c3c",  
+    };
+
     return (
         <div
             className="jobcard"
@@ -57,6 +63,7 @@ export default function JobCard({ job, actions, onClick }) {
 
             <div className="jobcard__footer">
                 <p className="jobcard__date">{createdAt}</p>
+
                 {actions ? (
                     <div className="jobcard__actions">{actions}</div>
                 ) : (

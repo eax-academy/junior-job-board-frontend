@@ -11,7 +11,8 @@ export default function JobDetailModal({ job, onClose }) {
     const [role, setRole] = useState(null);
     const [userData, setUserData] = useState(null);
     const [form, setForm] = useState({
-        firstName: "",
+        jobId: "",
+        name: "",
         lastName: "",
         email: "",
         phone: "",
@@ -70,35 +71,46 @@ export default function JobDetailModal({ job, onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.resume) {
-            alert("Please attach your resume!");
-            return;
+
+        let resumeBase64 = "";
+        if (form.resume) {
+            const file = form.resume;
+            resumeBase64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(",")[1]); 
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+            });
         }
 
-        const formData = new FormData();
-        formData.append("jobId", job._id || job.id);
-        formData.append("firstName", form.firstName);
-        formData.append("lastName", form.lastName);
-        formData.append("email", form.email);
-        formData.append("phone", form.phone);
-        formData.append("message", form.message);
-        formData.append("resume", form.resume);
+        const payload = {
+            jobId: job._id?.$oid || job.id,
+            name: form.firstName || form.name,
+            lastName: form.lastName,
+            email: form.email,
+            phone: form.phone,
+            message: form.message,
+            resumeUrl: resumeBase64, 
+        };
+
+        console.log("Submitting JSON payload:", payload);
 
         try {
-            const res = await api.post("/applications", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            if (res.status === 200) {
-                alert("Application submitted!");
+            const res = await api.post("/applications", payload);
+            if (res.status === 201) {
+                console.log("Application submitted!");
                 onClose();
             } else {
-                alert("Failed to submit application");
+                console.log("Failed to submit application");
             }
         } catch (err) {
-            console.error(err);
-            alert("Error submitting application");
+            console.error("Error submitting application", err);
         }
     };
+
+    const createdAt = job?.createdAt?.$date
+        ? new Date(job.createdAt.$date).toLocaleString()
+        : job.createdAt || "";
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -109,6 +121,14 @@ export default function JobDetailModal({ job, onClose }) {
 
                 <h2 className="modal-title">{job.title}</h2>
                 <p className="modal-location">{job.location}</p>
+
+                {isCompanyOwner && job.status && (
+                    <p>
+                        <strong>Status:</strong>{" "}
+                        {job.status.charAt(0).toUpperCase() +
+                            job.status.slice(1)}
+                    </p>
+                )}
 
                 <p>
                     <strong>Grade:</strong> {job.grade}
@@ -139,14 +159,19 @@ export default function JobDetailModal({ job, onClose }) {
                             className="show-applicants-btn"
                             onClick={toggleApplicants}
                         >
-                            {showApplicants ? "Hide Applicants" : "Show Applicants"}
+                            {showApplicants
+                                ? "Hide Applicants"
+                                : "Show Applicants"}
                         </button>
 
                         {showApplicants && (
                             <div className="applicants-list">
                                 {applicants.length ? (
                                     applicants.map((a) => (
-                                        <div key={a._id} className="applicant-item">
+                                        <div
+                                            key={a._id}
+                                            className="applicant-item"
+                                        >
                                             <p>
                                                 {a.firstName} {a.lastName}
                                             </p>
@@ -209,7 +234,6 @@ export default function JobDetailModal({ job, onClose }) {
                             name="resume"
                             accept=".pdf,.doc,.docx"
                             onChange={handleChange}
-                            required
                         />
                         <textarea
                             name="message"
@@ -222,6 +246,8 @@ export default function JobDetailModal({ job, onClose }) {
                         </button>
                     </form>
                 )}
+
+                <p className="modal-date">Posted: {createdAt}</p>
             </div>
         </div>
     );

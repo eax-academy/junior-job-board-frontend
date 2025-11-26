@@ -12,7 +12,9 @@ export default function MyApplications() {
     useEffect(() => {
         async function fetchApps() {
             try {
-                const res = await api.get(`/applications/user/${user._id.$oid}`);
+                const res = await api.get(
+                    `/applications/user/${user._id.$oid}`
+                );
                 setApplications(res.data);
             } catch (err) {
                 setError("Failed to load applications");
@@ -24,9 +26,14 @@ export default function MyApplications() {
     }, []);
 
     if (loading) return <div className="myapps__status">Loading...</div>;
-    if (error) return <div className="myapps__status myapps__status--error">{error}</div>;
+    if (error)
+        return (
+            <div className="myapps__status myapps__status--error">{error}</div>
+        );
     if (!applications.length)
-        return <div className="myapps__status">You have no applications yet.</div>;
+        return (
+            <div className="myapps__status">You have no applications yet.</div>
+        );
 
     return (
         <div className="myapps">
@@ -39,8 +46,22 @@ export default function MyApplications() {
                         <p className="myapps__status-text">
                             Status: <strong>{app.status}</strong>
                         </p>
+
+                        <p className="myapps__meta">
+                            User ID: <strong>{app.userId}</strong>
+                        </p>
+
+                        <p className="myapps__meta">
+                            Company ID: <strong>{app.companyId}</strong>
+                        </p>
+
+                        <p className="myapps__meta">
+                            Job ID: <strong>{app.jobId}</strong>
+                        </p>
+
                         <p className="myapps__date">
-                            Applied: {new Date(app.createdAt).toLocaleDateString()}
+                            Applied:{" "}
+                            {new Date(app.createdAt).toLocaleDateString()}
                         </p>
                     </div>
                 ))}
