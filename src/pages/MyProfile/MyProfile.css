@@ -54,3 +54,29 @@ button {
     color: green;
     font-size: 14px;
 }
+.array-input {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.array-input input {
+    flex: 1;
+}
+
+.upload-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.upload-section button {
+    flex-shrink: 0;
+    background: #6c63ff;
+}
+
+.upload-section p {
+    font-size: 14px;
+    margin: 0;
+    color: #333;
+}
