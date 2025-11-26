@@ -1,83 +1,126 @@
+/* --- Layout --- */
 .admin {
-  width: 100%;
-  min-height: 100vh;
-  background: #f3f4f6;
-  padding: 24px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    width: 100%;
+    min-height: 100vh;
+    background: #f3f4f6;
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
+/* --- Header Section --- */
 .admin__top {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .admin__back-btn {
-  padding: 8px 14px;
-  background: #111827;
-  color: white;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
+    padding: 8px 14px;
+    background: #0062ff;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin__back-btn:hover {
+    background: #004bcc;
 }
 
 .admin__heading {
-  font-size: 20px;
-  margin: 0;
-  color: #111827;
+    margin: 0;
+    font-size: 22px;
+    color: #0062ff;
+    font-weight: 600;
 }
 
+/* --- Tabs (Jobs / Applications) --- */
+.admin__tabs {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.admin__tab {
+    padding: 8px 14px;
+    background: #e2e3e5;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+}
+
+.admin__tab:hover {
+    background: #d6d6d6;
+}
+
+.admin__tab.active {
+    background: #333;
+    color: #fff;
+}
+
+/* --- Grid for Cards --- */
 .admin__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
 }
 
 @media (min-width: 768px) {
-  .admin__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+    .admin__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (min-width: 1100px) {
-  .admin__grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+    .admin__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
+/* --- Approve / Reject Buttons --- */
 .admin__actions {
-  display: flex;
-  gap: 10px;
-  width: 100%;
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.admin__approve,
+.admin__reject {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s;
 }
 
 .admin__approve {
-  flex: 1;
-  padding: 10px 0;
-  background: #16a34a;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+    background: #16a34a;
 }
 
 .admin__reject {
-  flex: 1;
-  padding: 10px 0;
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+    background: #dc2626;
 }
 
+.admin__approve:hover,
+.admin__reject:hover {
+    opacity: 0.85;
+}
+
+/* --- Empty state box --- */
 .admin__empty {
-  color: #6b7280;
-  padding: 20px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+    padding: 20px;
+    color: #6b7280;
+    background: #fff;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
 }
