@@ -12,7 +12,7 @@ export default function MyApplications() {
     useEffect(() => {
         async function fetchApps() {
             try {
-                const res = await api.get(`/api/applications/user/${user._id}`);
+                const res = await api.get(`/applications/user/${user._id.$oid}`);
                 setApplications(res.data);
             } catch (err) {
                 setError("Failed to load applications");
@@ -33,7 +33,7 @@ export default function MyApplications() {
             <h2 className="myapps__title">My Applications</h2>
             <div className="myapps__list">
                 {applications.map((app) => (
-                    <div key={app._id} className="myapps__item">
+                    <div key={app._id.$oid} className="myapps__item">
                         <h3 className="myapps__job-title">{app.jobTitle}</h3>
                         <p className="myapps__company">{app.companyName}</p>
                         <p className="myapps__status-text">
