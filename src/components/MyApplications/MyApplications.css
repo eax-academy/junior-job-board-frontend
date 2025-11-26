@@ -1,0 +1,50 @@
+.myapps {
+    padding: 20px;
+}
+
+.myapps__title {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.myapps__status {
+    padding: 20px;
+    text-align: center;
+}
+
+.myapps__status--error {
+    color: red;
+}
+
+.myapps__list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.myapps__item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.myapps__job-title {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.myapps__company {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.myapps__status-text {
+    margin-bottom: 5px;
+}
+
+.myapps__date {
+    color: #777;
+    font-size: 14px;
+}

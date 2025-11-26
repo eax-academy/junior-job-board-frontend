@@ -7,6 +7,7 @@ import CompanyCard from "../../components/CompanyCard/CompanyCard";
 import JobDetailModal from "../../components/JobDetailModal/JobDetailModal";
 import FilterPanel from "../../components/FilterPanel/FilterPanel";
 import PostJobForm from "../../components/CreateJobForm/CreateJobForm";
+import MyApplications from "../../components/MyApplications/MyApplications";
 import MyJobs from "../../components/myJobs/myJobs";
 import api from "../../axiosConfig";
 
@@ -23,6 +24,7 @@ export default function Home() {
     const [role, setRole] = useState(null);
     const [showPostJobForm, setShowPostJobForm] = useState(false);
     const [showMyJobs, setShowMyJobs] = useState(false);
+    const [showMyApplications, setShowMyApplications] = useState(false);
 
     const [filters, setFilters] = useState({
         category: "",
@@ -95,13 +97,10 @@ export default function Home() {
         try {
             const url = buildUsersUrl(filterObj, search);
             const res = await api.get(url);
-            let data = [];
             if (res.status === 200 && res.data) {
-                data = Object.values(res.data).map((user) => ({
+                const data = Object.values(res.data).map((user) => ({
                     ...user,
-                    programmingLanguages: Array.isArray(
-                        user.programmingLanguages
-                    )
+                    programmingLanguages: Array.isArray(user.programmingLanguages)
                         ? user.programmingLanguages
                         : [],
                     skills: Array.isArray(user.skills) ? user.skills : [],
@@ -110,34 +109,27 @@ export default function Home() {
                         ? new Date(user.createdAt).toLocaleDateString()
                         : "",
                 }));
-            } else {
-                data = mockUsers;
+                setUserList(data);
             }
-            setUserList(data);
         } catch (err) {
             console.error("Failed to fetch users:", err);
-            setUserList(mockUsers);
         }
     };
 
     const fetchCompanies = async () => {
         try {
             const res = await api.get("/companies?page=1");
-            let data = [];
             if (res.status === 200 && res.data) {
-                data = Object.values(res.data).map((company) => ({
+                const data = Object.values(res.data).map((company) => ({
                     ...company,
                     createdAt: company.createdAt
                         ? new Date(company.createdAt).toLocaleDateString()
                         : "",
                 }));
-            } else {
-                data = mockCompanies;
+                setCompanyList(data);
             }
-            setCompanyList(data);
         } catch (err) {
             console.error("Failed to fetch companies:", err);
-            setCompanyList(mockCompanies);
         }
     };
 
@@ -200,7 +192,10 @@ export default function Home() {
                             className={`home__post-job-btn ${
                                 showMyJobs ? "is-active" : ""
                             }`}
-                            onClick={() => setShowMyJobs((prev) => !prev)}
+                            onClick={() => {
+                                setShowMyJobs((prev) => !prev);
+                                setShowMyApplications(false);
+                            }}
                         >
                             {showMyJobs ? "All Jobs" : "My Jobs"}
                         </button>
@@ -222,26 +217,45 @@ export default function Home() {
                         </button>
                     </>
                 )}
+                {role === "user" && (
+                    <button
+                        className={`home__post-job-btn ${
+                            showMyApplications ? "is-active" : ""
+                        }`}
+                        onClick={() => {
+                            setShowMyApplications((prev) => !prev);
+                            setShowMyJobs(false);
+                        }}
+                    >
+                        {showMyApplications ? "All Jobs" : "My Applications"}
+                    </button>
+                )}
+
                 <SearchBar value={searchTerm} onChange={handleSearchChange} />
             </div>
 
             <div className="home__content">
-                <div className="home__filters">
-                    {activeSection === "home" || activeSection === "resumes" ? (
+                {activeSection === "home" || activeSection === "resumes" ? (
+                    <div className="home__filters">
                         <FilterPanel
                             filters={filters}
                             jobList={jobList}
                             onApply={handleApplyFilters}
                         />
-                    ) : null}
-                </div>
+                    </div>
+                ) : null}
 
                 <div className="home__jobs">
-                    {showMyJobs && activeSection === "home" ? (
+                    {showMyApplications ? (
+                        <MyApplications
+                            userId={userData?._id}
+                            onJobClick={handleOpenModal}
+                        />
+                    ) : showMyJobs && activeSection === "home" ? (
                         <MyJobs />
                     ) : (
                         <>
-                            <div className="">
+                            <div>
                                 <h2>
                                     {activeSection === "home"
                                         ? `${jobList.length} Jobs Found`
@@ -320,9 +334,7 @@ export default function Home() {
                                     ? newJob.requiredLanguages
                                     : [],
                                 createdAt: newJob.createdAt
-                                    ? new Date(
-                                          newJob.createdAt
-                                      ).toLocaleDateString()
+                                    ? new Date(newJob.createdAt).toLocaleDateString()
                                     : "",
                             },
                             ...jobList,
