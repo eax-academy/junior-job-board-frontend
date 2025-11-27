@@ -83,38 +83,57 @@ export default function MyProfile() {
         setCompanyData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-        setSuccess("");
+    const handlePhotoUpload = () => {
+        if (!photoFile) return;
+        const reader = new FileReader();
+        reader.readAsDataURL(photoFile);
+        reader.onloadend = async () => {
+            const photoBase64 = reader.result;
+            setPhotoStatus("Uploading...");
 
-        const storedUser = localStorage.getItem("Data");
-        if (!storedUser) {
-            setError("No user data found");
-            setLoading(false);
-            return;
-        }
+            try {
+                const storedUser = localStorage.getItem("Data");
+                const userId = JSON.parse(storedUser)._id.$oid;
 
-        const userId = JSON.parse(storedUser)._id.$oid;
+                let res;
+                if (role === "company") {
+                    res = await api.put(`/companies/${userId}`, {
+                        photoBase64,
+                    });
 
-        try {
-            let res;
-            if (role === "company") {
-                res = await api.put(`/companies/${userId}`, companyData);
-            } else {
-                res = await api.put(`/users/${userId}`, userData);
+                    if (res.status === 200) {
+                        setCompanyData((prev) => ({ ...prev, photoBase64 }));
+
+                        const updated = {
+                            ...JSON.parse(storedUser),
+                            photoBase64,
+                        };
+                        localStorage.setItem("Data", JSON.stringify(updated));
+
+                        setPhotoStatus("Photo uploaded successfully!");
+                    } else setPhotoStatus("Upload failed");
+                } else {
+                    res = await api.put(`/users/${userId}`, { photoBase64 });
+
+                    if (res.status === 200) {
+                        setUserData((prev) => ({ ...prev, photoBase64 }));
+
+                        const updated = {
+                            ...JSON.parse(storedUser),
+                            photoBase64,
+                        };
+                        localStorage.setItem("Data", JSON.stringify(updated));
+
+                        setPhotoStatus("Photo uploaded successfully!");
+                    } else setPhotoStatus("Upload failed");
+                }
+
+                setPhotoFile(null);
+            } catch (err) {
+                console.error(err);
+                setPhotoStatus("Upload failed");
             }
-
-            if (res.status === 200) {
-                setSuccess("Profile updated successfully!");
-            }
-        } catch (err) {
-            console.error(err);
-            setError("Update failed");
-        } finally {
-            setLoading(false);
-        }
+        };
     };
 
     const handlePhotoUpload = () => {
@@ -167,10 +186,16 @@ export default function MyProfile() {
             try {
                 const storedUser = localStorage.getItem("Data");
                 const userId = JSON.parse(storedUser)._id.$oid;
+
                 const res = await api.put(`/users/${userId}`, { resumeBase64 });
+
                 if (res.status === 200) {
-                    setResumeStatus("Resume uploaded successfully!");
                     setUserData((prev) => ({ ...prev, resumeBase64 }));
+
+                    const updated = { ...JSON.parse(storedUser), resumeBase64 };
+                    localStorage.setItem("Data", JSON.stringify(updated));
+
+                    setResumeStatus("Resume uploaded successfully!");
                     setResumeFile(null);
                 } else {
                     setResumeStatus("Upload failed");
