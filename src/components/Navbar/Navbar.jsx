@@ -2,7 +2,12 @@ import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import Logo from "../../assets/images/Logo.svg";
 
-export default function Navbar({ active, onChangeActive, userData, handleLogout }) {
+export default function Navbar({
+    active,
+    onChangeActive,
+    userData,
+    handleLogout,
+}) {
     const navigate = useNavigate();
 
     const menuItems = [
@@ -44,7 +49,11 @@ export default function Navbar({ active, onChangeActive, userData, handleLogout 
                 <div className="navbar__profile">
                     {userData.avatarBase64 ? (
                         <img
-                            src={`data:image/png;base64,${userData.avatarBase64}`}
+                            src={
+                                userData.avatarBase64 ||
+                                userData.photoBase64 ||
+                                "/assets/images/CompanyLogo.svg"
+                            }
                             alt="avatar"
                             className="profile-avatar"
                             style={{ cursor: "pointer" }}

@@ -1,63 +1,110 @@
 .home {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-sizing: border-box;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
 }
 
 .home__topbar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 20px;
+    background: #f9fafb;
+}
+
+.home__buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .home__post-job-btn {
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: #111827;
-  color: #fff;
-  border: none;
-  cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #111827;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.home__post-job-btn:hover {
+    background: #1f2937;
 }
 
 .home__admin-btn {
-  background: #f59e0b;
-  color: #111827;
+    background: #f59e0b;
+    color: #111827;
 }
 
+.home__admin-btn:hover {
+    background: #d97706;
+}
+
+.home__sort {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.home__sort select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    font-size: 14px;
+    color: #111827;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.home__sort select:hover {
+    border-color: #9ca3af;
+}
+
+.home__sort select:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.1);
+}
+
+/* --- Контент страницы --- */
 .home__content {
-  display: flex;
-  gap: 20px;
-  padding: 0 20px 40px 20px;
-  box-sizing: border-box;
+    display: flex;
+    gap: 20px;
+    padding: 0 20px 40px 20px;
+    box-sizing: border-box;
 }
 
 .home__filters {
-  width: 280px;
+    width: 280px;
 }
 
 .home__jobs {
-  flex: 1;
+    flex: 1;
 }
 
 .job-listings {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
 }
 
 @media (min-width: 900px) {
-  .job-listings {
-    grid-template-columns: repeat(2, 1fr);
-  }
+    .job-listings {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (min-width: 1200px) {
-  .job-listings {
-    grid-template-columns: repeat(3, 1fr);
-  }
+    .job-listings {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }

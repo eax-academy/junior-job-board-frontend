@@ -8,6 +8,7 @@
   gap: 12px;
   cursor: default;
   transition: transform .12s ease, box-shadow .12s ease;
+  max-height: 240px;
 }
 
 .companycard:hover {
@@ -62,13 +63,27 @@
 .companycard__website {
   font-size: 13px;
   color: #374151;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .companycard__description {
   font-size: 14px;
   color: #4b5563;
   margin: 0;
+
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  line-height: 1.4;
+  max-height: calc(1.4em * 3);
 }
+
 
 .companycard__footer {
   display: flex;

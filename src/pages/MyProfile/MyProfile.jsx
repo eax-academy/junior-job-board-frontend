@@ -5,6 +5,9 @@ import "./MyProfile.css";
 
 export default function MyProfile() {
     const [role, setRole] = useState(null);
+    const isCompany = role === "company";
+    const isUser = role === "user";
+    const isAdmin = role === "admin";
     const navigate = useNavigate();
 
     const [userData, setUserData] = useState({
@@ -195,13 +198,12 @@ export default function MyProfile() {
 
             <div className="profile-container">
                 <form onSubmit={handleSubmit} className="profile-form">
-                    <h2>
-                        {role === "company"
-                            ? "Company Profile"
-                            : "User Profile"}
-                    </h2>
+                    {isCompany && <h2>Company Profile</h2>}
+                    {(isUser || isAdmin) && (
+                        <h2>{isAdmin ? "Admin Profile" : "User Profile"}</h2>
+                    )}
 
-                    {role === "company" ? (
+                    {isCompany && (
                         <>
                             <label>Profile Photo</label>
                             <div className="upload-section">
@@ -228,6 +230,7 @@ export default function MyProfile() {
                                 value={companyData.name}
                                 onChange={handleCompanyChange}
                             />
+
                             <input
                                 type="email"
                                 name="email"
@@ -243,33 +246,32 @@ export default function MyProfile() {
                                         type="text"
                                         value={url}
                                         onChange={(e) => {
-                                            const newArr = [
+                                            const arr = [
                                                 ...companyData.website,
                                             ];
-                                            newArr[index] = e.target.value;
+                                            arr[index] = e.target.value;
                                             setCompanyData((prev) => ({
                                                 ...prev,
-                                                website: newArr,
+                                                website: arr,
                                             }));
                                         }}
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            const newArr =
-                                                companyData.website.filter(
-                                                    (_, i) => i !== index
-                                                );
+                                        onClick={() =>
                                             setCompanyData((prev) => ({
                                                 ...prev,
-                                                website: newArr,
-                                            }));
-                                        }}
+                                                website: prev.website.filter(
+                                                    (_, i) => i !== index
+                                                ),
+                                            }))
+                                        }
                                     >
                                         Remove
                                     </button>
                                 </div>
                             ))}
+
                             <button
                                 type="button"
                                 onClick={() =>
@@ -297,7 +299,9 @@ export default function MyProfile() {
                                 onChange={handleCompanyChange}
                             />
                         </>
-                    ) : (
+                    )}
+
+                    {(isUser || isAdmin) && (
                         <>
                             <label>Profile Photo</label>
                             <div className="upload-section">
@@ -324,6 +328,7 @@ export default function MyProfile() {
                                 value={userData.name}
                                 onChange={handleUserChange}
                             />
+
                             <input
                                 type="text"
                                 name="lastname"
@@ -331,6 +336,7 @@ export default function MyProfile() {
                                 value={userData.lastname}
                                 onChange={handleUserChange}
                             />
+
                             <input
                                 type="email"
                                 name="email"
@@ -338,6 +344,7 @@ export default function MyProfile() {
                                 value={userData.email}
                                 onChange={handleUserChange}
                             />
+
                             <input
                                 type="text"
                                 name="phone"
@@ -345,6 +352,7 @@ export default function MyProfile() {
                                 value={userData.phone}
                                 onChange={handleUserChange}
                             />
+
                             <input
                                 type="text"
                                 name="location"
@@ -353,131 +361,150 @@ export default function MyProfile() {
                                 onChange={handleUserChange}
                             />
 
-                            <label>Skills</label>
-                            {userData.skills.map((skill, index) => (
-                                <div key={index} className="array-input">
-                                    <input
-                                        type="text"
-                                        value={skill}
-                                        onChange={(e) => {
-                                            const arr = [...userData.skills];
-                                            arr[index] = e.target.value;
+                            {!isAdmin && (
+                                <>
+                                    <label>Skills</label>
+                                    {userData.skills.map((skill, index) => (
+                                        <div
+                                            key={index}
+                                            className="array-input"
+                                        >
+                                            <input
+                                                type="text"
+                                                value={skill}
+                                                onChange={(e) => {
+                                                    const arr = [
+                                                        ...userData.skills,
+                                                    ];
+                                                    arr[index] = e.target.value;
+                                                    setUserData((prev) => ({
+                                                        ...prev,
+                                                        skills: arr,
+                                                    }));
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setUserData((prev) => ({
+                                                        ...prev,
+                                                        skills: prev.skills.filter(
+                                                            (_, i) =>
+                                                                i !== index
+                                                        ),
+                                                    }))
+                                                }
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
                                             setUserData((prev) => ({
                                                 ...prev,
-                                                skills: arr,
-                                            }));
-                                        }}
+                                                skills: [...prev.skills, ""],
+                                            }))
+                                        }
+                                    >
+                                        + Add Skill
+                                    </button>
+
+                                    <label>Programming Languages</label>
+                                    {userData.programmingLanguages.map(
+                                        (lang, index) => (
+                                            <div
+                                                key={index}
+                                                className="array-input"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    value={lang}
+                                                    onChange={(e) => {
+                                                        const arr = [
+                                                            ...userData.programmingLanguages,
+                                                        ];
+                                                        arr[index] =
+                                                            e.target.value;
+                                                        setUserData((prev) => ({
+                                                            ...prev,
+                                                            programmingLanguages:
+                                                                arr,
+                                                        }));
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setUserData((prev) => ({
+                                                            ...prev,
+                                                            programmingLanguages:
+                                                                prev.programmingLanguages.filter(
+                                                                    (_, i) =>
+                                                                        i !==
+                                                                        index
+                                                                ),
+                                                        }))
+                                                    }
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        )
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setUserData((prev) => ({
+                                                ...prev,
+                                                programmingLanguages: [
+                                                    ...prev.programmingLanguages,
+                                                    "",
+                                                ],
+                                            }))
+                                        }
+                                    >
+                                        + Add Language
+                                    </button>
+
+                                    <textarea
+                                        name="bio"
+                                        placeholder="Bio"
+                                        value={userData.bio}
+                                        onChange={handleUserChange}
+                                    />
+
+                                    <label>Resume</label>
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.doc,.docx"
+                                        onChange={(e) =>
+                                            setResumeFile(e.target.files[0])
+                                        }
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            const arr =
-                                                userData.skills.filter(
-                                                    (_, i) => i !== index
-                                                );
-                                            setUserData((prev) => ({
-                                                ...prev,
-                                                skills: arr,
-                                            }));
-                                        }}
+                                        onClick={handleResumeUpload}
                                     >
-                                        Remove
+                                        Upload Resume
                                     </button>
-                                </div>
-                            ))}
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setUserData((prev) => ({
-                                        ...prev,
-                                        skills: [...prev.skills, ""],
-                                    }))
-                                }
-                            >
-                                + Add Skill
-                            </button>
-
-                            <label>Programming Languages</label>
-                            {userData.programmingLanguages.map(
-                                (lang, index) => (
-                                    <div key={index} className="array-input">
-                                        <input
-                                            type="text"
-                                            value={lang}
-                                            onChange={(e) => {
-                                                const arr = [
-                                                    ...userData.programmingLanguages,
-                                                ];
-                                                arr[index] = e.target.value;
-                                                setUserData((prev) => ({
-                                                    ...prev,
-                                                    programmingLanguages:
-                                                        arr,
-                                                }));
-                                            }}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const arr =
-                                                    userData.programmingLanguages.filter(
-                                                        (_, i) => i !== index
-                                                    );
-                                                setUserData((prev) => ({
-                                                    ...prev,
-                                                    programmingLanguages:
-                                                        arr,
-                                                }));
-                                            }}
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                )
+                                    {resumeStatus && <p>{resumeStatus}</p>}
+                                </>
                             )}
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setUserData((prev) => ({
-                                        ...prev,
-                                        programmingLanguages: [
-                                            ...prev.programmingLanguages,
-                                            "",
-                                        ],
-                                    }))
-                                }
-                            >
-                                + Add Language
-                            </button>
-
-                            <textarea
-                                name="bio"
-                                placeholder="Bio"
-                                value={userData.bio}
-                                onChange={handleUserChange}
-                            />
-
-                            <label>Resume</label>
-                            <input
-                                type="file"
-                                accept=".pdf,.doc,.docx"
-                                onChange={(e) =>
-                                    setResumeFile(e.target.files[0])
-                                }
-                            />
-                            <button type="button" onClick={handleResumeUpload}>
-                                Upload Resume
-                            </button>
-                            {resumeStatus && <p>{resumeStatus}</p>}
                         </>
                     )}
 
                     {error && <p className="error">{error}</p>}
                     {success && <p className="success">{success}</p>}
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? "Saving..." : "Save Changes"}
-                    </button>
+                    {!isAdmin && (
+                        <button type="submit" disabled={loading}>
+                            {loading ? "Saving..." : "Save Changes"}
+                        </button>
+                    )}
                 </form>
             </div>
         </>

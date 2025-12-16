@@ -1,4 +1,5 @@
 import "./CompanyCard.css";
+import Treedots from "../../assets/images/3dots.svg";
 
 export default function CompanyCard({ company, onClick }) {
     const createdAt = company.createdAt
@@ -14,19 +15,25 @@ export default function CompanyCard({ company, onClick }) {
                 <div className="companycard__header__left">
                     <div className="companycard__logo">
                         <img
-                            src={company.avatarUrl || "/assets/images/CompanyLogo.svg"}
+                            src={
+                                company.avatarBase64 ||
+                                company.photoBase64 ||
+                                "/assets/images/CompanyLogo.svg"
+                            }
                             alt="Company Logo"
                         />
                     </div>
                     <div className="companycard__info">
                         <h3 className="companycard__title">{company.name}</h3>
-                        <p className="companycard__location">{company.location}</p>
-                    </div>
+                        <p className="companycard__location">
+                            {company.location}
+                        </p>
+                    </div>+
                 </div>
 
                 <img
                     className="companycard__more"
-                    src="/assets/images/3dots.svg"
+                    src= {Treedots}
                     alt="more"
                 />
             </div>

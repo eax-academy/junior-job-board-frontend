@@ -10,7 +10,7 @@ import PostJobForm from "../../components/CreateJobForm/CreateJobForm";
 import MyApplications from "../../components/MyApplications/MyApplications";
 import MyJobs from "../../components/myJobs/myJobs";
 import api from "../../axiosConfig";
-
+const JOBS_PER_PAGE = 30;
 import "./Home.css";
 
 export default function Home() {
@@ -25,6 +25,11 @@ export default function Home() {
     const [showPostJobForm, setShowPostJobForm] = useState(false);
     const [showMyJobs, setShowMyJobs] = useState(false);
     const [showMyApplications, setShowMyApplications] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [sortBy, setSortBy] = useState("newest");
+    const [workTypeFilter, setWorkTypeFilter] = useState("");
 
     const [filters, setFilters] = useState({
         category: "",
@@ -36,7 +41,9 @@ export default function Home() {
 
     const [appliedFilters, setAppliedFilters] = useState({});
 
-    const buildJobsUrl = (filterObj = {}, search = "") => {
+    const JOBS_PER_PAGE = 30;
+
+    const buildJobsUrl = (filterObj = {}, search = "", page = 1) => {
         const {
             language = "",
             seniority = [],
@@ -49,13 +56,11 @@ export default function Home() {
         if (seniority.length) params.push(`grade=${seniority.join(",")}`);
         if (category) params.push(`category=${category}`);
         if (skills.length) params.push(`skills=${skills.join(",")}`);
-        if (salary[0] !== null || salary[1] !== null) {
-            const min = salary[0] !== null ? salary[0] : "";
-            const max = salary[1] !== null ? salary[1] : "";
-            params.push(`salary=[${min},${max}]`);
-        }
+        if (salary[0] !== null || salary[1] !== null)
+            params.push(`salary=[${salary[0] || ""},${salary[1] || ""}]`);
         if (search) params.push(`search=${search}`);
-        params.push("page=1");
+        params.push(`page=${page}`);
+        params.push(`limit=${JOBS_PER_PAGE}`);
         return `/jobs?${params.join("&")}`;
     };
 
@@ -70,10 +75,15 @@ export default function Home() {
         return `/users?${params.join("&")}`;
     };
 
-    const fetchJobs = async (filterObj = {}, search = "") => {
+    const fetchJobs = async (filterObj = {}, search = "", pageNum = 1) => {
+        if (loadingMore || !hasMore) return;
+
+        setLoadingMore(true);
+
         try {
-            const url = buildJobsUrl(filterObj, search);
+            const url = buildJobsUrl(filterObj, search, pageNum);
             const res = await api.get(url);
+
             if (res.status === 200 && res.data) {
                 const data = Object.values(res.data).map((job) => ({
                     ...job,
@@ -86,10 +96,20 @@ export default function Home() {
                         ? new Date(job.createdAt).toLocaleDateString()
                         : "",
                 }));
-                setJobList(data);
+
+                if (data.length === 0) {
+                    setHasMore(false);
+                } else {
+                    setJobList((prev) =>
+                        pageNum === 1 ? data : [...prev, ...data]
+                    );
+                    setPage(pageNum);
+                }
             }
         } catch (err) {
             console.error("Failed to fetch jobs:", err);
+        } finally {
+            setLoadingMore(false);
         }
     };
 
@@ -100,7 +120,9 @@ export default function Home() {
             if (res.status === 200 && res.data) {
                 const data = Object.values(res.data).map((user) => ({
                     ...user,
-                    programmingLanguages: Array.isArray(user.programmingLanguages)
+                    programmingLanguages: Array.isArray(
+                        user.programmingLanguages
+                    )
                         ? user.programmingLanguages
                         : [],
                     skills: Array.isArray(user.skills) ? user.skills : [],
@@ -132,6 +154,40 @@ export default function Home() {
             console.error("Failed to fetch companies:", err);
         }
     };
+    const handleSortChange = (e) => {
+        const value = e.target.value;
+        setSortBy(value);
+
+        setJobList((prevList) => {
+            const sortedList = [...prevList];
+            if (value === "newest") {
+                sortedList.sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                );
+            } else if (value === "oldest") {
+                sortedList.sort(
+                    (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+                );
+            } else if (value === "remote") {
+                return sortedList.filter((job) =>
+                    job.workType.includes("remote")
+                );
+            } else if (value === "onsite") {
+                return sortedList.filter((job) =>
+                    job.workType.includes("onsite")
+                );
+            }
+            return sortedList;
+        });
+    };
+
+    const handleWorkTypeChange = (e) => {
+        const newType = e.target.value;
+        setWorkTypeFilter(newType);
+        setPage(1);
+        setHasMore(true);
+        fetchJobs({ ...appliedFilters, workType: newType }, searchTerm, 1);
+    };
 
     useEffect(() => {
         if (activeSection === "home") fetchJobs();
@@ -142,8 +198,11 @@ export default function Home() {
     useEffect(() => {
         const storedRole = localStorage.getItem("Role");
         setRole(storedRole);
+
         const storedUser = localStorage.getItem("Data");
-        if (storedUser) setData(JSON.parse(storedUser));
+        if (storedUser) {
+            setData(JSON.parse(storedUser));
+        }
     }, []);
 
     useEffect(() => {
@@ -153,6 +212,32 @@ export default function Home() {
                 fetchUsers(appliedFilters, searchTerm);
         }
     }, [searchTerm, activeSection]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (
+                window.innerHeight + window.scrollY >=
+                    document.body.offsetHeight - 200 &&
+                activeSection === "home"
+            ) {
+                fetchJobs(
+                    { ...appliedFilters, workType: workTypeFilter },
+                    searchTerm,
+                    page + 1
+                );
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [
+        page,
+        activeSection,
+        appliedFilters,
+        searchTerm,
+        sortBy,
+        workTypeFilter,
+    ]);
 
     const handleSectionChange = (section) => setActiveSection(section);
     const handleSearchChange = (term) => setSearchTerm(term);
@@ -232,6 +317,16 @@ export default function Home() {
                 )}
 
                 <SearchBar value={searchTerm} onChange={handleSearchChange} />
+                <div className="home__sort">
+                    <div className="home__sort">
+                        <select value={sortBy} onChange={handleSortChange}>
+                            <option value="newest">Newest</option>
+                            <option value="oldest">Oldest</option>
+                            <option value="remote">Remote</option>
+                            <option value="onsite">On-site</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div className="home__content">
@@ -334,7 +429,9 @@ export default function Home() {
                                     ? newJob.requiredLanguages
                                     : [],
                                 createdAt: newJob.createdAt
-                                    ? new Date(newJob.createdAt).toLocaleDateString()
+                                    ? new Date(
+                                          newJob.createdAt
+                                      ).toLocaleDateString()
                                     : "",
                             },
                             ...jobList,
